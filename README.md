@@ -1,6 +1,6 @@
 ##### author: @shival_gupta
 ## VoiceAI
-
+> **Voice Assistant inspired from Google Assistant, Cortana, Alexa, Siri, ...**
 ```
 This program is a virtual assitant (example of simple AI without machine learning) It will listen to you and do accordingly
 It will begin with wishing you 'Good Morning / Afternoon / Evening' according to the time of the day
