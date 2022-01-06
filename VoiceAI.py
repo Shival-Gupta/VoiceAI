@@ -1,6 +1,5 @@
 # author: @shival_gupta
 
-
 # This program is a virtual assitant (example of simple AI without machine learning) It will listen to you and do accordingly
 ## It will begin with wishing you 'Good Morning / Afternoon / Evening' according to the time of the day
 ## and then introducing herself as the name of voice 'Zira' 
@@ -11,6 +10,7 @@
 
 
 # Run these in terminal or powershell in order to run this program:
+# for Mac users replace 'pip' by 'pip3'
 '''
 pip install pyttsx3
 pip install pipwin
@@ -19,41 +19,47 @@ pip install speechRecognition
 pip install wikipedia
 '''
 
-import random
-import pyttsx3
-import datetime
-import speech_recognition as sr
-import wikipedia
-import webbrowser
-import os
-import smtplib
+# importing libraries aka modules
+import random                       # Generates the random output(s)
+import pyttsx3                      # Text to speech conversion library
+import datetime                     # Gets the time from the system
+import speech_recognition as sr     # Library for performing speech recognition, with support for several engines and APIs, online and offline
+import wikipedia                    # Wikipedia is a Python library that makes it easy to access and parse data from Wikipedia
+import webbrowser                   # Convenient web-browser controller
+import os                           # Library full of functions for interacting with the operating system
+import smtplib                      # Helps sending the mail through SMPT (Simple Mail Transfer Protocol)
+import sys
 
-engine = pyttsx3.init('sapi5')
-voices = engine.getProperty('voices')
-v = 1
-engine.setProperty('voice', voices[v].id)
+# Setting up the voice engine and the voice to be used for output
+# init function to get an engine instance for the speech synthesis 
+engine = pyttsx3.init('sapi5')              # SAPI5 is Microsoft Speech API
+voices = engine.getProperty('voices')       # Get details of the voices already present in the system
+v = 1      # set default index value as 1, try v as 0, 2 or 3, 0 and 1 works in most cases
+voiceName = 'bot'
 
-def speak(audio):
-    engine.say(audio)
+def setVoice(x):
+    global v, voiceName
+    v = x
+    engine.setProperty('voice', voices[v].id)   # Changing the voice to the index 'v'
+    voiceName = (((voices[v].name).split())[1]) # returns 2nd word, e.g. 'Zira' from 'Microsoft's Zira'
+setVoice(v)
+    
+# Speak the text and then waits
+def speak(text):
+    # print what bot said:
+    print(f'{voiceName}: %s' % text)
+    # passed text to be spoken
+    engine.say(text)
+    # run and wait method, it processes the voice commands
     engine.runAndWait()
 
-def wishMe():
-    hour = int(datetime.datetime.now().hour)
-    if hour<12:
-        speak('Good Morning!')
-    elif hour<18:
-        speak('Good Afternoon!')
-    else:
-        speak('Good Evening!')
-    
-    speak("I am %s. What can I do for you?" % (((voices[v].name).split())[1]))
-
-def takeCommand():
-    l = ["who's your father", "what's the time", 'search for <---> on wikipedia', 'change to male voice', 'open youtube', 'meow', 'open google', 'open stackoverflow']
+# Gets voice input from the user and returns the query as string
+def inputVoice():
+    insist = ["who's your father", "what's the time", 'tell me about Shahrukh khan on wikipedia', 'change to male voice', 'open youtube', 'meow', 'open google', 'open stackoverflow']
     r = sr.Recognizer()
     with sr.Microphone() as source:
-        print('Listening...')
-        print(f'{random.choice(l)}')
+        print(f'\n{voiceName}: Listening...')
+        print(f"Try saying '{str(random.choice(insist))}'")
         # r.pause_threshold = 1
         try:
             audio = r.listen(source)
@@ -62,15 +68,28 @@ def takeCommand():
             speak("Sorry, I'm having trouble with your mic")
             speak('Fix it, and try again')
     try:
-        print('Recognizing')
+        # print(f'\n{voiceName}: Recognizing...')
         query = r.recognize_google(audio)
-        print(f'User said: {query}\n')
+        print(f'\nUser: {query}')
     except Exception as e:
         print(e)
-        print('Say that again please...')
+        print('Pardon, Say that again please')
         return 'None'
     return query
 
+# Wishes 'Good Morning / Afternoon / Evening' according to the time of the day
+def wishMe():
+    currentTime = int(datetime.datetime.now().hour)    # gets the current time from systenm in hours, ranging from [0-23]
+    if currentTime<12:              # will say 'Good Morning!' to the user, if current time is between [0-11]
+        speak('Good Morning!')
+    elif currentTime<18:            # will say 'Good Afternoon!' to the user, if current time is between [12-17]
+        speak('Good Afternoon!')
+    else:
+        speak('Good Evening!')      # will say 'Good Evening!' to the user, if current time is between [18-23]
+    
+    speak("I am %s. What can I do for you?" % voiceName)
+
+# Sends email with content to recipient
 def sendEmail(to, content):
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.ehlo()
@@ -79,10 +98,13 @@ def sendEmail(to, content):
     server.sendmail('youremail@gmail.com', to, content)
     server.close()
 
+# Logic begins here
+# Main Function
 if __name__ == '__main__':
+    print()
     wishMe()
     while True:
-        query = takeCommand().lower()
+        query = inputVoice().lower()
         # query = 'Shahrukh khan on wikipedia'
 
         if 'wikipedia' in query:
@@ -99,7 +121,7 @@ if __name__ == '__main__':
         elif 'open google' in query:
             webbrowser.open("google.com")
 
-        elif 'open stackoverflow' in query:
+        elif 'open stack overflow' in query:
             webbrowser.open("stackoverflow.com")   
 
         elif 'play music' in query:
@@ -109,7 +131,7 @@ if __name__ == '__main__':
             os.startfile(os.path.join(music_dir, songs[0]))
 
         elif 'the time' in query:
-            strTime = datetime.datetime.now().strftime("%H:%M:%S")    
+            strTime = datetime.datetime.now().strftime("%H:%M")    
             speak(f"Sir, the time is {strTime}")
 
         elif 'open code' in query or 'open vs code' in query:
@@ -119,7 +141,7 @@ if __name__ == '__main__':
         elif 'email to recipient' in query:
             try:
                 speak("What should I say?")
-                content = takeCommand()
+                content = inputVoice()
                 to = "recipientEmail@gmail.com"    
                 sendEmail(to, content)
                 speak("Email has been sent!")
@@ -128,31 +150,47 @@ if __name__ == '__main__':
                 speak("Sorry, I am not able to send this email.")
         
         elif 'meow' in query:
-            l=[',','\.','!',':',';','?']
-            speak(f'meow{random.choice(l)}'*(len(query.split())+(random.choice([0,1,2]))))
+            n = query.split().count('meow') + random.choice([0, 1, 2])
+            if n>2: n+=2
+            meow = 'meow'
+            for i in range(n):
+                if i == n-1: meow += f"{random.choice(['?', '!'])}"
+                elif i == 0: meow += f"{random.choice(['-', ', '])}" + 'meow'
+                elif i == 1: meow = 'meow, meow'
+                elif i > 2: meow += f"{random.choice([' ', ', ', '-'])}" + 'meow'
+                # meow += 'meow' + f'{random.choice(l)}'
+            speak(meow)
         
         elif 'lalla' in query:
             speak('do you mean Yash Lulla?')
-            if takeCommand().lower() == 'yes':
+            if inputVoice().lower() == 'yes':
                 webbrowser.open('instagram.com/yashlulla08')
         
         elif 'subhashis' in query:
             speak('do you mean Subhashis pattanaik?')
-            if takeCommand().lower() == 'yes':
+            if inputVoice().lower() == 'yes':
                 webbrowser.open('instagram.com/_subhashis')
         
-        elif 'your father' in query:
-            speak('Shival Gupta')
+        elif 'your father' in query or 'made you' in query or 'your author' in query:
+            speak('Shival Gupta! \n He made me in 2022')
             speak('Would you like to visit his instagram?')
-            if takeCommand().lower() == 'yes':
+            if inputVoice().lower() == 'yes':
                 webbrowser.open('instagram.com/shival_gupta')
         
         elif 'female voice' in query:
-            v = 1
-            engine.setProperty('voice', voices[v].id)
-            speak("Hi, I am %s. What can I do for you?" % (((voices[v].name).split())[1]))
+            if v == 0:
+                setVoice(1)
+                speak("Hi, I am %s. What can I do for you?" % (((voices[v].name).split())[1]))
+            else:
+                speak("Rubbish! Do I sound like a boy to you!?")
+                speak("I'm a girl")
 
         elif 'male voice' in query:
-            v = 0
-            engine.setProperty('voice', voices[v].id)
-            speak("Hey, I am %s. What can I do for you?" % (((voices[v].name).split())[1]))
+            if v == 1:
+                setVoice(0)
+                speak("Hi, I am %s. What can I do for you?" % (((voices[v].name).split())[1]))
+            else:
+                speak("Rubbish! Do I sound like a girl to you!!")
+                speak("I'm a boy")
+        
+        # print()
