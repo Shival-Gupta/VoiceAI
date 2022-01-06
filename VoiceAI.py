@@ -43,7 +43,7 @@ def setVoice(x):
     engine.setProperty('voice', voices[v].id)   # Changing the voice to the index 'v'
     voiceName = (((voices[v].name).split())[1]) # returns 2nd word, e.g. 'Zira' from 'Microsoft's Zira'
 setVoice(v)
-    
+
 # Speak the text and then waits
 def speak(text):
     # print what bot said:
