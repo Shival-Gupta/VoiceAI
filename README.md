@@ -1,6 +1,5 @@
-#### VoiceAI
-
-### author: @shival_gupta
+##### author: @shival_gupta
+### VoiceAI
 
 ```
 This program is a virtual assitant (example of simple AI without machine learning) It will listen to you and do accordingly
