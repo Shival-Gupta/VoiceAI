@@ -12,6 +12,7 @@
 # Run these in terminal or powershell in order to run this program:
 # for Mac users replace 'pip' by 'pip3'
 '''
+python -m pip install --upgrade pip
 pip install pyttsx3
 pip install pipwin
 pipwin install pyaudio
@@ -34,7 +35,7 @@ import sys
 # init function to get an engine instance for the speech synthesis 
 engine = pyttsx3.init('sapi5')              # SAPI5 is Microsoft Speech API
 voices = engine.getProperty('voices')       # Get details of the voices already present in the system
-v = 1      # set default index value as 1, try v as 0, 2 or 3, 0 and 1 works in most cases
+v = 0      # set default index value as 1, try v as 0, 2 or 3, 0 and 1 works in most cases
 voiceName = 'bot'
 
 def setVoice(x):
@@ -55,11 +56,10 @@ def speak(text):
 
 # Gets voice input from the user and returns the query as string
 def inputVoice():
-    insist = ["who's your father", "what's the time", 'tell me about Shahrukh khan on wikipedia', 'change to male voice', 'open youtube', 'meow', 'open google', 'open stackoverflow']
     r = sr.Recognizer()
     with sr.Microphone() as source:
         print(f'\n{voiceName}: Listening...')
-        print(f"Try saying '{str(random.choice(insist))}'")
+        
         # r.pause_threshold = 1
         try:
             audio = r.listen(source)
@@ -101,19 +101,24 @@ def sendEmail(to, content):
 # Logic begins here
 # Main Function
 if __name__ == '__main__':
+    insist = ["who's your father", "what's the time", 'tell me about Shahrukh khan on wikipedia', 'change to male voice', 'open youtube', 'meow', 'open google', 'open stackoverflow']
     print()
     wishMe()
     while True:
         query = inputVoice().lower()
         # query = 'Shahrukh khan on wikipedia'
-
+        
+        print(f"Try saying '{str(random.choice(insist))}'")
+        
         if 'wikipedia' in query:
             speak('Searching Wikipedia...')
-            results = wikipedia.summary(query.replace('Wikipedia', ''), sentences=1)
-            speak('According to Wikipedia')
-            print(results)
-            speak(results)
-        
+            try:
+                results = wikipedia.summary(query.replace('Wikipedia', ''), sentences=1)
+                speak('According to Wikipedia')
+                speak(results)
+            except Exception as e:
+                speak("Sorry, couldn't find that")
+ 
         elif 'open youtube' in query:
             speak('opening YouTube!')
             webbrowser.open('youtube.com')
@@ -161,20 +166,11 @@ if __name__ == '__main__':
                 # meow += 'meow' + f'{random.choice(l)}'
             speak(meow)
         
-        elif 'lalla' in query:
-            speak('do you mean Yash Lulla?')
-            if inputVoice().lower() == 'yes':
-                webbrowser.open('instagram.com/yashlulla08')
-        
-        elif 'subhashis' in query:
-            speak('do you mean Subhashis pattanaik?')
-            if inputVoice().lower() == 'yes':
-                webbrowser.open('instagram.com/_subhashis')
-        
-        elif 'your father' in query or 'made you' in query or 'your author' in query:
-            speak('Shival Gupta! \n He made me in 2022')
+        elif 'your father' in query or 'made you' in query or 'your author' in query or 'your creator' in query:
+            speak('Shival Gupta \nHe made me in 2022!')
             speak('Would you like to visit his instagram?')
-            if inputVoice().lower() == 'yes':
+            q = inputVoice().lower()
+            if 'yes' in q or 'sure' in q:
                 webbrowser.open('instagram.com/shival_gupta')
         
         elif 'female voice' in query:
